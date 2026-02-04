@@ -1,0 +1,30 @@
+{
+  "name": "alphahunt-rsi-trade-helper",
+  "version": "1.0.0",
+  "description": "RSI Trading Scanner & Backtesting System for MEXC crypto futures",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "scan": "node index.js --scan",
+    "backtest": "node index.js --backtest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "keywords": [
+    "crypto",
+    "trading",
+    "rsi",
+    "backtesting",
+    "mexc"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ccxt": "^4.4.35",
+    "dotenv": "^16.4.7",
+    "firebase-admin": "^12.7.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
