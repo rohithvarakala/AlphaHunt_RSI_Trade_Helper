@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "RSI Trading Scanner & Backtesting System for MEXC crypto futures",
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
