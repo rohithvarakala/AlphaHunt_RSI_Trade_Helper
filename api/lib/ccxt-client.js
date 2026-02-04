@@ -1,5 +1,5 @@
 // MEXC Exchange Client using ccxt
-// Note: ccxt is loaded dynamically in serverless functions
+// Public endpoints (tickers, OHLCV) work without API keys
 
 let ccxt;
 
@@ -16,20 +16,29 @@ export async function getExchange() {
   const ccxtModule = await loadCcxt();
 
   if (!exchangeInstance) {
-    exchangeInstance = new ccxtModule.default.mexc({
-      apiKey: process.env.MEXC_API_KEY || '',
-      secret: process.env.MEXC_API_SECRET || '',
+    // Only include credentials if they're actually set
+    const config = {
       enableRateLimit: true,
       options: {
         defaultType: 'swap'
       }
-    });
+    };
+
+    // Only add API keys if they exist and are not empty
+    if (process.env.MEXC_API_KEY && process.env.MEXC_API_SECRET) {
+      config.apiKey = process.env.MEXC_API_KEY;
+      config.secret = process.env.MEXC_API_SECRET;
+    }
+
+    exchangeInstance = new ccxtModule.default.mexc(config);
   }
   return exchangeInstance;
 }
 
 export async function getTopCoinsByVolume(limit = 50, quoteCurrency = 'USDT') {
   const exchange = await getExchange();
+
+  // Fetch tickers without loading markets (which may require auth)
   const tickers = await exchange.fetchTickers();
 
   const filteredTickers = Object.entries(tickers)
@@ -86,7 +95,8 @@ export async function fetchMultipleOHLCV(symbols, timeframe = '1d', limit = 250)
 export async function testConnection() {
   try {
     const exchange = await getExchange();
-    await exchange.loadMarkets();
+    // Just fetch one ticker to test connection (doesn't require auth)
+    await exchange.fetchTicker('BTC/USDT:USDT');
     return { success: true, message: 'Connected to MEXC' };
   } catch (error) {
     return { success: false, message: error.message };
