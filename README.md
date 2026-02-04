@@ -1,15 +1,15 @@
 # AlphaHunt RSI Trade Helper
 
-A cryptocurrency RSI trading scanner and backtesting system for MEXC futures. Scans top 50 coins by volume for RSI oversold signals and provides historical backtest analysis.
+A cloud-based cryptocurrency RSI trading scanner and backtesting system for MEXC futures. Features a React dashboard deployed on Vercel with serverless API functions.
 
 ## Features
 
-- **RSI Scanner**: Real-time scanning of top 50 MEXC futures coins for RSI oversold conditions
+- **Web Dashboard**: Real-time RSI scanner with interactive charts
+- **RSI Scanner**: Scans top 50 MEXC futures coins for RSI oversold signals
 - **Wilder's RSI**: Authentic 1978 Wilder's Smoothed RSI calculation (14-period)
 - **Backtesting Engine**: Historical analysis with forward return calculations (1D, 1W, 2W, 1M)
-- **Signal Detection**: Automatic detection of RSI crossover signals
-- **Data Validation**: Quality checks for OHLCV data integrity
-- **Firebase Integration**: Optional trade logging and performance tracking
+- **Scheduled Scans**: Automatic scanning via Vercel cron jobs (every 4 hours)
+- **Firebase Integration**: Signal logging and historical data storage
 
 ## Trading Strategy
 
@@ -21,150 +21,169 @@ A cryptocurrency RSI trading scanner and backtesting system for MEXC futures. Sc
 | RSI Period | 14 (Wilder's method) |
 | Target Market | MEXC USDT-M Futures |
 
-## Installation
+## Tech Stack
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/AlphaHunt_RSI_Trade_Helper.git
-cd AlphaHunt_RSI_Trade_Helper
-
-# Install dependencies
-npm install
-
-# Copy environment template
-cp .env.example .env
-
-# Edit .env with your API keys
-```
-
-## Configuration
-
-Edit `.env` with your credentials:
-
-```env
-# MEXC API (required for scanning)
-MEXC_API_KEY=your_api_key
-MEXC_API_SECRET=your_api_secret
-
-# Firebase (optional - for logging)
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_CLIENT_EMAIL=your_client_email
-FIREBASE_PRIVATE_KEY="your_private_key"
-```
-
-## Usage
-
-### Test Connection
-```bash
-npm run start -- --test
-# or
-node index.js --test
-```
-
-### Run RSI Scanner
-Scan top 50 coins for oversold signals:
-```bash
-npm run scan
-# or
-node index.js --scan
-```
-
-### Run Backtest
-Analyze historical performance:
-```bash
-npm run backtest
-# or
-node index.js --backtest
-```
-
-### Help
-```bash
-node index.js --help
-```
+- **Frontend**: React 18, Tailwind CSS, Recharts, Framer Motion
+- **Backend**: Vercel Serverless Functions
+- **Database**: Firebase Firestore
+- **Exchange API**: MEXC via ccxt
+- **Hosting**: Vercel
 
 ## Project Structure
 
 ```
-├── config/
-│   └── settings.js      # Configuration (RSI, risk, API settings)
-├── data/
-│   ├── fetcher.js       # MEXC API integration via ccxt
-│   └── validator.js     # Data quality validation
-├── analysis/
-│   ├── rsi.js           # Wilder's RSI calculation
-│   ├── signals.js       # Signal detection (oversold/overbought)
-│   └── backtest.js      # Backtesting engine
-├── storage/
-│   └── firebase.js      # Firestore integration
-├── index.js             # Main orchestrator
+├── api/                    # Vercel Serverless Functions
+│   ├── lib/
+│   │   ├── ccxt-client.js  # MEXC API integration
+│   │   ├── rsi.js          # Wilder's RSI calculation
+│   │   └── backtest.js     # Backtesting engine
+│   ├── scan.js             # RSI scanner endpoint
+│   ├── backtest.js         # Backtest endpoint
+│   ├── health.js           # Health check endpoint
+│   └── cron/
+│       └── scan.js         # Scheduled scan job
+├── src/                    # React Frontend
+│   ├── components/
+│   │   ├── Layout.js
+│   │   ├── StatCard.js
+│   │   └── CoinTable.js
+│   ├── pages/
+│   │   ├── Dashboard.js
+│   │   ├── Scanner.js
+│   │   └── Backtest.js
+│   ├── firebase.js
+│   ├── App.js
+│   └── index.js
+├── public/
+├── vercel.json
 ├── package.json
-├── .env.example
-└── .gitignore
+└── tailwind.config.js
 ```
 
-## Modules
+## Deployment to Vercel
 
-### RSI Calculator (`analysis/rsi.js`)
-- Wilder's Smoothed RSI (1978 methodology)
-- First average uses SMA, subsequent use exponential smoothing
-- Validates RSI values (flags anomalies outside 1-99 range)
+### 1. Fork/Clone Repository
 
-### Signal Detector (`analysis/signals.js`)
-- Detects RSI crossover events
-- `OVERSOLD_ENTRY`: RSI crosses below 30
-- `OVERBOUGHT_EXIT`: RSI crosses above 70
-- Real-time market state analysis
-
-### Backtesting Engine (`analysis/backtest.js`)
-- Forward return calculation at multiple horizons
-- Trade simulation with TP/SL
-- Win rate and performance statistics
-- Multi-symbol aggregate analysis
-
-### Data Fetcher (`data/fetcher.js`)
-- MEXC futures market integration via ccxt
-- Top coins by 24h volume
-- OHLCV historical data fetching
-- Rate limiting support
-
-## Example Output
-
-```
-🟢 NEW OVERSOLD SIGNALS (Potential Entries):
-🟢 BTC      | BUY | RSI: 28.45 | Price: $42150.00
-
-👀 CURRENTLY OVERSOLD (Watching):
-  ETH      RSI: 29.12 | $2245.50
-  SOL      RSI: 27.89 | $98.45
+```bash
+git clone https://github.com/yourusername/AlphaHunt_RSI_Trade_Helper.git
+cd AlphaHunt_RSI_Trade_Helper
 ```
 
-## Backtest Results
+### 2. Create Firebase Project
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project
+3. Enable Firestore Database
+4. Go to Project Settings > Your Apps > Add Web App
+5. Copy the configuration values
+
+### 3. Get MEXC API Keys
+
+1. Go to [MEXC OpenAPI](https://www.mexc.com/user/openapi)
+2. Create a new API key (read-only is sufficient for scanning)
+3. Copy the API Key and Secret
+
+### 4. Deploy to Vercel
+
+1. Go to [Vercel](https://vercel.com) and sign in
+2. Click "Import Project"
+3. Select your GitHub repository
+4. Add Environment Variables:
 
 ```
-═══════════════════════════════════════════════════════════════
-              AGGREGATE BACKTEST RESULTS
-═══════════════════════════════════════════════════════════════
-Total Symbols Tested: 20
-Total Signals Found: 156
-Total Trades: 156
-Overall Win Rate: 58.33%
-Average Return: 2.45%
-
-Forward Returns Analysis:
-1D   | Win Rate:  52.14% | Wins: 78/156
-1W   | Win Rate:  56.78% | Wins: 84/148
-2W   | Win Rate:  61.23% | Wins: 87/142
-1M   | Win Rate:  64.52% | Wins: 80/124
-═══════════════════════════════════════════════════════════════
+MEXC_API_KEY=your_mexc_api_key
+MEXC_API_SECRET=your_mexc_secret
+REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+REACT_APP_FIREBASE_APP_ID=your_app_id
+CRON_SECRET=generate_a_random_string
 ```
 
-## Phase 2 (Future)
+5. Click "Deploy"
 
-- Paper trading mode
-- Live trade execution
-- Position management
-- Performance dashboard
-- Telegram/Discord notifications
+### 5. Enable Cron Jobs (Pro Plan)
+
+The scheduled scanner runs every 4 hours. To enable:
+
+1. Upgrade to Vercel Pro (or use a workaround with external cron services)
+2. Cron jobs are automatically configured via `vercel.json`
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/scan` | GET | Scan top 50 coins for RSI signals |
+| `/api/backtest` | GET | Run backtest on historical data |
+| `/api/health` | GET | Health check and configuration |
+| `/api/cron/scan` | GET | Scheduled scan (cron job) |
+
+### Query Parameters
+
+**`/api/scan`**
+- `limit` (default: 50) - Number of coins to scan
+
+**`/api/backtest`**
+- `limit` (default: 20) - Number of coins to backtest
+- `days` (default: 365) - Days of historical data
+
+## Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Create .env file
+cp .env.example .env
+# Edit .env with your credentials
+
+# Start development server
+npm start
+```
+
+The app will be available at `http://localhost:3000`
+
+## Dashboard Pages
+
+### Dashboard (`/`)
+- Overview of current scan results
+- New oversold signals (entry opportunities)
+- Currently oversold/overbought coins
+- Quick stats
+
+### Scanner (`/scanner`)
+- Full coin list with RSI values
+- Search and filter functionality
+- Real-time RSI trend indicators
+
+### Backtest (`/backtest`)
+- Historical strategy performance
+- Win rates by time horizon (1D, 1W, 2W, 1M)
+- Per-symbol breakdown
+- Interactive charts
+
+## RSI Calculation
+
+Uses Wilder's Smoothed RSI (1978 methodology):
+
+1. **First Average**: Simple Moving Average (SMA) of gains/losses
+2. **Subsequent Averages**: Wilder's Smoothing Method
+   ```
+   AvgGain = (PrevAvgGain × (period - 1) + CurrentGain) / period
+   AvgLoss = (PrevAvgLoss × (period - 1) + CurrentLoss) / period
+   ```
+3. **RSI Formula**: `RSI = 100 - (100 / (1 + RS))` where `RS = AvgGain / AvgLoss`
+
+## Future Enhancements
+
+- [ ] Telegram/Discord notifications for new signals
+- [ ] Paper trading mode
+- [ ] Portfolio tracking
+- [ ] Custom RSI thresholds
+- [ ] Multiple timeframe analysis
+- [ ] Position sizing calculator
 
 ## Disclaimer
 
